@@ -1,0 +1,29 @@
+@import 'reset.css';
+
+html {
+    font-size: 16px;
+}
+
+#main_container {
+    height: 100vh;
+    background-color: #b799ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.weather_card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background-color: #acbcff;
+    color: #2a2f4f;
+    border-radius: 12px;
+}
+
+.weather_card > * {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
