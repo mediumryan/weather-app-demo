@@ -1,59 +1,63 @@
-import './CSS/index.css';
-import axios from 'axios';
-import { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useGeolocation } from '@uidotdev/usehooks';
+import { fetchData } from './api';
+import { styled } from 'styled-components';
+import Weather from './Weather';
 
-export default function App() {
-    const [coords, setCoords] = useState();
-    const [datas, setDatas] = useState();
+const MainWrapper = styled.div`
+    background-color: var(--bg-100);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
 
-    function handleGeoSucc(position) {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        const coordsObj = {
-            latitude,
-            longitude,
-        };
-        setCoords(coordsObj);
-        getWeather(latitude, longitude);
-    }
+const Loader = styled.div`
+    font-size: var(--font-size-medium-large);
+    color: var(--accent-100);
+`;
 
-    function handleGeoErr(err) {
-        console.log('geo err! ' + err);
-    }
+function WeatherApp() {
+    // 사용자 geo값 요청
+    const geo = useGeolocation();
 
-    function requestCoords() {
-        navigator.geolocation.getCurrentPosition(handleGeoSucc, handleGeoErr);
-    }
+    // 위치 정보가 변경될 때마다 새로운 쿼리 키를 생성
+    const queryKey = ['weatherData', geo.latitude, geo.longitude];
 
-    function getWeather(lat, lon) {
-        const API_KEY = '30a223157b4e106a3d4631fa76a27b4a';
-        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
-        axios.get(url).then((res) => {
-            setDatas(res.data);
-        });
-    }
+    // useQuery를 사용하여 데이터 가져오기
+    const { isLoading, data, error } = useQuery(
+        queryKey,
+        () => fetchData(geo.latitude, geo.longitude),
+        {
+            enabled:
+                !geo.loading &&
+                geo.latitude !== undefined &&
+                geo.longitude !== undefined,
+        }
+    );
 
     useEffect(() => {
-        requestCoords();
-    }, []);
+        if (error) {
+            console.error(error);
+        }
+    }, [error]);
 
     return (
-        <div id="main_container">
-            <div className="weather_card">
-                <h2 className="location">{datas && datas.name}</h2>
-                <p className="temp">
-                    <span className="tag">현재 온도 : </span>
-                    {datas && Math.floor(datas.main.temp)}°C
-                </p>
-                <p className="weather">
-                    <span className="tag">날씨 : </span>
-                    {datas && datas.weather[0].main}
-                </p>
-                <p className="weather">
-                    <span className="tag">습도 : </span>
-                    {datas && datas.main.humidity}%
-                </p>
-            </div>
-        </div>
+        <MainWrapper>
+            {isLoading ? (
+                <Loader>Loading...</Loader>
+            ) : error ? (
+                <Loader>Error: {error.message}</Loader>
+            ) : (
+                <Weather data={data} />
+            )}
+        </MainWrapper>
     );
 }
+
+function App() {
+    return <WeatherApp />;
+}
+
+export default App;
