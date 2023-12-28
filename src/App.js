@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useGeolocation } from '@uidotdev/usehooks';
 import { fetchData } from './api';
@@ -6,15 +6,17 @@ import { styled } from 'styled-components';
 import Weather from './Weather';
 
 const MainWrapper = styled.div`
-    background-color: var(--bg-100);
+    background-color: var(--white-100);
     height: 100vh;
     display: flex;
-    align-items: center;
     justify-content: center;
 `;
 
 const Loader = styled.div`
-    font-size: var(--font-size-medium-large);
+    margin-top: 20rem;
+    font-size: 2rem;
+    font-weight: 500;
+    font-style: italic;
     color: var(--accent-100);
 `;
 
